@@ -1,0 +1,1 @@
+List.Accumulate, Function.PartialApply

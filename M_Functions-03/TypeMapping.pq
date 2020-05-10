@@ -1,0 +1,38 @@
+#table(
+	type table
+	[
+		#"Type Name" = text,
+		Type = type,
+		#"Type Expression" = text
+	],
+	{
+		{ "Text", type text, "text"},
+		{ "String", type text, "text"},
+		{ "Number", type number, "number"},
+		{ "Decimal", type number, "number"},
+		{ "Decimal Number", type number, "number"},
+		{ "Currency", Currency.Type, "Currency.Type"},
+		{ "Int64", Int64.Type, "Int64.Type"},
+		{ "Whole Number", Int64.Type, "Int64.Type"},
+		{ "Percentage", Percentage.Type, "Percentage.Type"},
+		{ "DateTime", type datetime, "datetime"},
+		{ "Date", type date, "date"},
+		{ "Time", type time, "time"},
+		{ "DateTimeZone", type datetimezone, "datetimezone"},
+		{ "Duration", type duration, "duration"},
+		{ "Logical", type logical, "logical"},
+		{ "Boolean", type logical, "logical"},
+		{ "Type", type type, "type"},
+		{ "", type any, "any"},
+		{ null, type any, "any"},
+		{ "List", type list, "list"},
+		{ "Record", type record, "record"},
+		{ "Guid", Guid.Type, "Guid.Type"},
+		{ "Binary", type binary,"binary"},
+		{ "Table", type table,"table"},
+		{ "Int8", Int8.Type, "Int8.Type"},
+		{ "UInt8", Byte.Type, "Byte.Type"},
+		{ "Int16", Int16.Type, "Int16.Type"},
+		{ "Int32", Int32.Type, "Int32.Type"},
+		{ "Single", Single.Type, "Single.Type"},
+		{ "Double", Double.Type, "Double.Type"}})

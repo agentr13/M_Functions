@@ -1,0 +1,55 @@
+(InputTable as table) as text =>
+let
+    Source = Table.Schema(InputTable),
+    SortRows = Table.Sort(Source,{{"Position", Order.Ascending}}),
+    SimplifyTypeNameRec = 
+        [#"Any.Type" = "any"
+        ,#"Binary.Type" = "binary"
+        ,#"Date.Type" = "date"
+        ,#"DateTime.Type" = "datetime"
+        ,#"DateTimeZone.Type" = "datetimezone"
+        ,#"Duration.Type" = "duration"
+        ,#"Function.Type" = "function"
+        ,#"List.Type" = "list"
+        ,#"Logical.Type" = "logical"
+        ,#"None.Type" = "none"
+        ,#"Null.Type" = "null"
+        ,#"Number.Type" = "number"
+        ,#"Record.Type" = "record"
+        ,#"Table.Type" = "table"
+        ,#"Text.Type" = "text"
+        ,#"Time.Type" = "time"
+        ,#"Type.Type" = "type"],
+    SimplifyTypeNames = Table.TransformColumns(SortRows,{{"TypeName", each Record.FieldOrDefault(SimplifyTypeNameRec,_,_), type text}}),
+    RemoveColumns = Table.SelectColumns(SimplifyTypeNames,{"Name", "TypeName","IsNullable"}),
+    AddCustom = 
+        Table.AddColumn(
+            RemoveColumns, 
+            "TypeNames", 
+            each 
+            Expression.Identifier([Name]) & " = " & (if [IsNullable] then "nullable " else "") & [TypeName]),
+    TableTypeRec = 
+        "[" & Text.Combine(AddCustom[TypeNames], ", ") & "]"
+
+//Code above is based on a function by Chris Webb
+
+   ,ValuesToConstant = Table.TransformColumns(InputTable,{},Expression.Constant)
+   ,ValuesToConstLen = Table.TransformColumns(ValuesToConstant,{},Text.Length)
+   ,MaxLengthEachCol = List.Buffer(List.Transform(Table.ToColumns(ValuesToConstLen),List.Max))
+   ,List = List.Transform(Table.ToRows(ValuesToConstant)
+                         ,(RowAsList)=> 
+                                let
+                                    Zip = List.Zip({RowAsList,MaxLengthEachCol})
+                                   ,PadOut = List.Transform(Zip,each Function.Invoke(Text.PadEnd,_)) 
+                                   ,CombineValues = "{"&Text.Combine(PadOut,",")&"}"
+                                in 
+                                    CombineValues)
+   ,Body = "{"&Text.Combine(List,"#(lf),")&"}"
+   ,Together =   "#table(type table" 
+               & TableTypeRec
+               & ",#(lf)"
+               & Body
+               & "#(lf))"
+in
+
+    Together
